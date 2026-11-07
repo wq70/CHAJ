@@ -1,0 +1,148 @@
+#chaj-cloud {
+    position: fixed;
+    z-index: 1900;
+    right: calc(12px + env(safe-area-inset-right, 0px));
+    top: calc(100dvh - 130px - env(safe-area-inset-bottom, 0px));
+    display: grid;
+    place-items: center;
+    width: 66px;
+    height: 52px;
+    padding: 0;
+    border: 0;
+    border-radius: 18px;
+    background: transparent;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+}
+
+#chaj-cloud svg {
+    display: block;
+    filter: drop-shadow(0 4px 5px #25204460);
+    pointer-events: none;
+}
+
+#chaj-panel {
+    --chaj-ink: #26233b;
+    --chaj-muted: #58536e;
+    --chaj-line: #dfddee;
+    --chaj-accent: #5547a1;
+    position: fixed;
+    inset: auto calc(12px + env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) auto;
+    box-sizing: border-box;
+    width: min(420px, calc(100vw - 24px - env(safe-area-inset-right, 0px) - env(safe-area-inset-left, 0px)));
+    max-width: none;
+    max-height: min(670px, calc(100dvh - 38px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
+    margin: 0;
+    padding: 16px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--chaj-line);
+    border-radius: 20px;
+    background: #fbfaff;
+    color: var(--chaj-ink);
+    box-shadow: 0 18px 60px #1d15395c;
+    font-family: system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.45;
+    text-align: left;
+    color-scheme: light;
+}
+
+#chaj-panel::backdrop { background: #19142f55; }
+#chaj-panel [hidden] { display: none !important; }
+#chaj-panel h2, #chaj-panel h3, #chaj-panel p { margin: 0; color: inherit; }
+#chaj-panel h2 { font-size: 24px; line-height: 1.2; }
+#chaj-panel h3 { font-size: 17px; overflow-wrap: anywhere; }
+
+#chaj-panel .chaj-header, #chaj-panel .chaj-preview-bar, #chaj-panel .chaj-pages {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+#chaj-panel .chaj-kicker {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--chaj-accent);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .05em;
+}
+
+#chaj-panel button, #chaj-panel input {
+    box-sizing: border-box;
+    min-height: 44px;
+    margin: 0;
+    padding: 6px 11px;
+    border: 1px solid var(--chaj-line);
+    border-radius: 11px;
+    background: #fff;
+    color: var(--chaj-ink);
+    font: inherit;
+    text-shadow: none;
+}
+
+#chaj-panel button { cursor: pointer; }
+#chaj-panel button:disabled { cursor: default; opacity: .46; }
+#chaj-panel .chaj-close { min-width: 44px; font-size: 24px; line-height: 1; }
+#chaj-panel :focus-visible, #chaj-cloud:focus-visible { outline: 2px solid #746ac4; outline-offset: 2px; }
+
+#chaj-panel .chaj-tabs, #chaj-panel .chaj-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin: 13px 0 10px;
+}
+
+#chaj-panel [aria-pressed="true"], #chaj-panel [data-add] {
+    border-color: #c6baf0;
+    background: #eee9fd;
+    color: #413282;
+    font-weight: 650;
+}
+
+#chaj-panel input { width: 100%; min-width: 0; font-size: 16px; }
+#chaj-panel input::placeholder { color: var(--chaj-muted); opacity: 1; }
+#chaj-panel .chaj-summary, #chaj-panel .chaj-count, #chaj-panel .chaj-hint,
+#chaj-panel .chaj-preview-note, #chaj-panel .chaj-save-status, #chaj-panel .chaj-page-label {
+    margin-top: 8px;
+    color: var(--chaj-muted);
+    font-size: 13px;
+}
+
+#chaj-panel .chaj-list {
+    display: grid;
+    gap: 6px;
+    max-height: min(340px, 43dvh);
+    margin: 8px 0;
+    padding: 2px;
+    overflow: auto;
+    overscroll-behavior: contain;
+}
+
+#chaj-panel .chaj-list button { display: grid; gap: 2px; width: 100%; text-align: left; }
+#chaj-panel .chaj-list button span, #chaj-panel .chaj-list button strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+#chaj-panel .chaj-list button span { color: var(--chaj-muted); font-size: 13px; }
+#chaj-panel .chaj-preview-bar { margin-bottom: 10px; }
+#chaj-panel .chaj-preview-note:empty { display: none; }
+#chaj-panel .chaj-preview-text {
+    max-height: min(385px, 48dvh);
+    margin: 10px 0;
+    padding: 11px;
+    overflow: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--chaj-line);
+    border-radius: 11px;
+    background: #fff;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+#chaj-panel .chaj-greetings { padding: 5px 2px 1px; }
+#chaj-panel .chaj-save-status { min-height: 1.5em; }
+#chat > .mes.chaj-highlight { outline: 2px solid #ab95fa; outline-offset: -2px; }

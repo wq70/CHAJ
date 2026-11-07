@@ -1,0 +1,10 @@
+{
+  "display_name": "云朵助手 · CHAJ",
+  "loading_order": 100,
+  "js": "index.js",
+  "css": "style.css",
+  "author": "wq70",
+  "version": "1.0.0",
+  "minimum_client_version": "1.19.0",
+  "homePage": "https://github.com/wq70/CHAJ"
+}
