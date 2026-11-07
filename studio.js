@@ -84,6 +84,7 @@ export function createStudio(root, getContext, getCopy, onUse) {
             const label = document.createElement('strong');
             label.textContent = `No. ${String(index + 1).padStart(2, '0')}`;
             const tag = document.createElement('span');
+            tag.className = 'chaj-entry-group';
             tag.textContent = entry.group || c.ungrouped;
             header.append(label, tag);
             if (entry.id === inUse && useHere) {

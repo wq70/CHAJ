@@ -1,29 +1,135 @@
+.chaj-colors {
+    --chaj-base: #e4eae7;
+    --chaj-panel: #eff3ef;
+    --chaj-ink: #172e2e;
+    --chaj-muted: #415c59;
+    --chaj-line: #a8bab5;
+    --chaj-lit: #105b4f;
+    --chaj-active: #133e36;
+    --chaj-on-active: #f4fffa;
+    --chaj-beam: #8cad9e;
+    --chaj-stage: radial-gradient(ellipse at 59% 42%, #f4fbf5, #e3eeea 41%, #bfcfca);
+    --chaj-metal-light: #f9fffb;
+    --chaj-metal: #c5d8d0;
+    --chaj-metal-dark: #45675d;
+    --chaj-metal-back: #233e37;
+    --chaj-shadow: #143d374b;
+    --chaj-etch: #304d45;
+    --chaj-mono: Consolas, "SFMono-Regular", monospace;
+    --chaj-serif: "Noto Serif SC", "Songti SC", SimSun, Georgia, serif;
+    color-scheme: light;
+}
+
+.chaj-colors[data-theme="night"] {
+    --chaj-base: #141321;
+    --chaj-panel: #201e30;
+    --chaj-ink: #f0ecff;
+    --chaj-muted: #c0b6d3;
+    --chaj-line: #4c445e;
+    --chaj-lit: #c7b6ff;
+    --chaj-active: #bfa9f7;
+    --chaj-on-active: #211535;
+    --chaj-beam: #8a6db9;
+    --chaj-stage: radial-gradient(ellipse at 60% 45%, #393051, #221c38 38%, #100e1c 82%);
+    --chaj-metal-light: #d2bbf4;
+    --chaj-metal: #71618e;
+    --chaj-metal-dark: #34264e;
+    --chaj-metal-back: #151222;
+    --chaj-shadow: #06050bb0;
+    --chaj-etch: #d0bbe7;
+    color-scheme: dark;
+}
+
+.chaj-colors[data-palette="mono"][data-theme="day"] {
+    --chaj-base: #f5f5f5;
+    --chaj-panel: #fff;
+    --chaj-ink: #101010;
+    --chaj-muted: #555;
+    --chaj-line: #ccc;
+    --chaj-lit: #161616;
+    --chaj-active: #171717;
+    --chaj-on-active: #fff;
+    --chaj-beam: #999;
+    --chaj-stage: #fff;
+    --chaj-metal-light: #fff;
+    --chaj-metal: #ccc;
+    --chaj-metal-dark: #555;
+    --chaj-metal-back: #282828;
+    --chaj-shadow: #0003;
+    --chaj-etch: #333;
+}
+
+.chaj-colors[data-palette="mono"][data-theme="night"] {
+    --chaj-base: #111;
+    --chaj-panel: #000;
+    --chaj-ink: #f5f5f5;
+    --chaj-muted: #bbb;
+    --chaj-line: #474747;
+    --chaj-lit: #eee;
+    --chaj-active: #eee;
+    --chaj-on-active: #111;
+    --chaj-beam: #777;
+    --chaj-stage: #000;
+    --chaj-metal-light: #ddd;
+    --chaj-metal: #777;
+    --chaj-metal-dark: #373737;
+    --chaj-metal-back: #101010;
+    --chaj-shadow: #000b;
+    --chaj-etch: #ddd;
+}
+
 #chaj-cloud {
+    --chaj-orb-size: 54px;
     position: fixed;
     z-index: 1900;
-    top: calc(100dvh - 130px - env(safe-area-inset-bottom, 0px));
-    right: calc(12px + env(safe-area-inset-right, 0px));
+    top: clamp(env(safe-area-inset-top, 0px), var(--chaj-orb-y, calc(100dvh - 130px)), calc(100dvh - var(--chaj-orb-size) - env(safe-area-inset-bottom, 0px)));
+    left: clamp(env(safe-area-inset-left, 0px), var(--chaj-orb-x, calc(100% - 67px)), calc(100% - var(--chaj-orb-size) - env(safe-area-inset-right, 0px)));
     display: grid;
     place-items: center;
-    width: 66px;
-    height: 52px;
+    box-sizing: border-box;
+    width: var(--chaj-orb-size);
+    height: var(--chaj-orb-size);
     padding: 0;
-    border: 0;
-    border-radius: 24px;
-    background: transparent;
-    cursor: pointer;
+    border: 1px solid var(--chaj-metal-light);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 24%, var(--chaj-metal-light), var(--chaj-metal) 24%, var(--chaj-beam) 49%, var(--chaj-metal-dark) 73%, var(--chaj-metal-back));
+    box-shadow: 0 4px 15px var(--chaj-shadow), inset 1px 2px 4px var(--chaj-metal-light);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
     -webkit-tap-highlight-color: transparent;
 }
 
-#chaj-cloud svg { display: block; filter: drop-shadow(0 4px 9px #0005); pointer-events: none; }
+#chaj-cloud::before {
+    content: "";
+    width: 70%;
+    height: 25%;
+    border: 1px solid var(--chaj-metal-light);
+    border-radius: 50%;
+    transform: rotate(-29deg);
+    box-shadow: 0 0 5px var(--chaj-metal-light);
+    pointer-events: none;
+}
+
+#chaj-wake-edge {
+    position: fixed;
+    z-index: 1900;
+    top: 25%;
+    bottom: 25%;
+    right: env(safe-area-inset-right, 0px);
+    width: 24px;
+    touch-action: pan-y;
+    user-select: none;
+}
+
+#chaj-cloud[hidden], #chaj-wake-edge[hidden] { display: none !important; }
+#chaj-cloud[data-dragging], #chaj-panel .chaj-dial[data-dragging] { cursor: grabbing; }
 
 dialog.chaj-dialog {
-    --chaj-line: #0002;
-    --chaj-muted: #000a;
     position: fixed;
     inset: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
     box-sizing: border-box;
-    width: min(500px, calc(100vw - 24px - env(safe-area-inset-right, 0px) - env(safe-area-inset-left, 0px)));
+    width: min(960px, calc(100vw - 24px - env(safe-area-inset-right, 0px) - env(safe-area-inset-left, 0px)));
     max-width: none;
     height: fit-content;
     max-height: min(720px, calc(100dvh - 26px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
@@ -31,35 +137,39 @@ dialog.chaj-dialog {
     padding: clamp(14px, 4vw, 24px);
     overflow: auto;
     overscroll-behavior: contain;
-    border: 0;
-    border-radius: 28px;
-    background: #fff;
-    color: #000;
+    border: 1px solid var(--chaj-line);
+    border-radius: 12px;
+    background: var(--chaj-panel);
+    color: var(--chaj-ink);
     box-shadow: 0 20px 80px #0004;
     font: 14px/1.5 -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei UI', 'Noto Sans CJK SC', sans-serif;
     text-align: left;
-    color-scheme: light;
 }
 
+#chaj-panel { padding: 0; container-type: inline-size; }
 .chaj-dialog::backdrop { background: #0007; }
+.chaj-dialog *, .chaj-dialog *::before, .chaj-dialog *::after { box-sizing: border-box; }
 .chaj-dialog [hidden] { display: none !important; }
 .chaj-dialog :is(h2, h3, p) { margin: 0; color: inherit; }
 .chaj-dialog h2 { font-size: clamp(22px, 6vw, 28px); line-height: 1.12; letter-spacing: -.045em; font-weight: 730; }
 .chaj-dialog:lang(zh) h2 { letter-spacing: -.02em; }
 .chaj-dialog h3 { font-size: 18px; font-weight: 700; overflow-wrap: anywhere; }
 
-.chaj-masthead, .chaj-brand, .chaj-top-actions, .chaj-language, .chaj-pages, .chaj-preview-bar,
+.chaj-masthead, .chaj-brand, .chaj-top-actions, .chaj-language, .chaj-theme, .chaj-pages, .chaj-preview-bar,
 .chaj-studio-heading, .chaj-ledger, .chaj-studio-tools, .chaj-entry-heading, .chaj-entry-actions {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 8px;
 }
-.chaj-masthead { margin-bottom: 14px; }
-.chaj-brand { justify-content: flex-start; gap: 5px; min-width: 0; }
-.chaj-brand-icon { flex: 0 0 auto; }
-.chaj-brand-icon svg { display: block; width: clamp(24px, 8vw, 38px); height: auto; }
-.chaj-top-actions { flex: 0 0 auto; gap: 4px; }
+.chaj-masthead { min-height: 58px; flex-wrap: wrap; padding: 9px clamp(10px, 2.6cqw, 23px); border-bottom: 1px solid var(--chaj-line); }
+.chaj-brand { justify-content: flex-start; gap: 7px; min-width: 0; white-space: nowrap; }
+.chaj-brand strong { font: 700 15px/1 var(--chaj-mono); letter-spacing: .17em; }
+.chaj-brand-mark { width: 19px; height: 19px; display: grid; place-items: center; flex: none; border: 1px solid var(--chaj-muted); border-radius: 50%; transform: rotate(-30deg); }
+.chaj-brand-mark::before { content: ""; width: 100%; height: 43%; border: 1px solid var(--chaj-muted); border-radius: 50%; background: var(--chaj-panel); }
+#chaj-title { padding-left: 7px; border-left: 1px solid var(--chaj-line); color: var(--chaj-muted); font-size: 12px; }
+.chaj-top-actions { gap: 5px; }
+.chaj-top-actions svg { display: block; width: 16px; height: 16px; }
 
 .chaj-dialog :is(button, input, select, textarea, summary) {
     box-sizing: border-box;
@@ -67,29 +177,29 @@ dialog.chaj-dialog {
     margin: 0;
     padding: 7px 11px;
     border: 1px solid var(--chaj-line);
-    border-radius: 14px;
-    background: #fff;
-    color: #000;
+    border-radius: 5px;
+    background: var(--chaj-panel);
+    color: var(--chaj-ink);
     font: inherit;
     text-shadow: none;
 }
 .chaj-dialog :is(button, summary) { cursor: pointer; }
 .chaj-dialog button:disabled { cursor: default; opacity: .4; }
-.chaj-dialog button:hover:enabled, .chaj-dialog summary:hover { border-color: #0008; }
-.chaj-dialog :focus-visible, #chaj-cloud:focus-visible { outline: 2px solid #000; outline-offset: 2px; }
-.chaj-dialog .chaj-close { min-width: 42px; padding: 0; font-size: 24px; line-height: 1; border-color: transparent; }
-.chaj-dialog .chaj-language { gap: 0; padding: 2px; border: 1px solid var(--chaj-line); border-radius: 999px; }
-.chaj-dialog .chaj-language button { min-width: 32px; min-height: 32px; padding: 0 5px; border: 0; border-radius: 999px; font-size: 11px; font-weight: 700; }
-.chaj-dialog .chaj-language [aria-pressed="true"] { background: #000; color: #fff; }
+.chaj-dialog button:hover:enabled, .chaj-dialog summary:hover { border-color: var(--chaj-lit); }
+.chaj-dialog :focus-visible, #chaj-cloud:focus-visible { outline: 2px solid var(--chaj-lit); outline-offset: 2px; }
+.chaj-dialog :is(.chaj-close, .chaj-settings-button) { display: grid; place-items: center; width: 34px; min-height: 34px; padding: 0; border-radius: 50%; }
+.chaj-dialog .chaj-close { font-size: 22px; line-height: 1; }
+.chaj-dialog :is(.chaj-language, .chaj-theme) { gap: 1px; padding: 2px; border: 1px solid var(--chaj-line); border-radius: 999px; }
+.chaj-dialog :is(.chaj-language, .chaj-theme) button { min-width: 26px; min-height: 28px; padding: 0 5px; border: 0; border-radius: 999px; font-size: 11px; white-space: nowrap; }
+.chaj-dialog .chaj-theme button { display: flex; align-items: center; gap: 3px; padding-inline: 6px; }
+.chaj-theme svg { width: 13px; height: 13px; }
+.chaj-dialog :is(.chaj-language, .chaj-theme) [aria-pressed="true"] { background: var(--chaj-active); color: var(--chaj-on-active); }
 
-.chaj-tabs, .chaj-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
-.chaj-tabs { padding: 3px; border: 1px solid var(--chaj-line); border-radius: 999px; margin-bottom: 14px; }
-.chaj-dialog .chaj-tabs button { min-width: 0; padding-inline: 5px; border-color: transparent; border-radius: 999px; font-weight: 650; }
-.chaj-dialog .chaj-tabs [aria-pressed="true"] { border-color: #000; box-shadow: 0 2px 5px #0001; }
+.chaj-actions { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
 .chaj-dialog :is(input, select, textarea) { width: 100%; min-width: 0; font-size: 16px; }
 .chaj-dialog input::placeholder { color: var(--chaj-muted); opacity: 1; }
 .chaj-search { position: relative; }
-.chaj-search svg { position: absolute; inset: 12px auto auto 13px; stroke: #000; stroke-width: 1.65; stroke-linecap: round; fill: none; pointer-events: none; }
+.chaj-search svg { position: absolute; inset: 12px auto auto 13px; stroke: var(--chaj-ink); stroke-width: 1.65; stroke-linecap: round; fill: none; pointer-events: none; }
 .chaj-dialog .chaj-search input { padding-left: 38px; border-radius: 999px; }
 .chaj-dialog :is(.chaj-summary, .chaj-preview-note, .chaj-save-status, .chaj-page-label) { margin-top: 8px; color: var(--chaj-muted); font-size: 12px; }
 
@@ -120,7 +230,7 @@ dialog.chaj-dialog {
     overflow: auto;
     overscroll-behavior: contain;
     border: 1px solid var(--chaj-line);
-    border-radius: 14px;
+    border-radius: 5px;
     white-space: pre-wrap;
     overflow-wrap: anywhere;
 }
@@ -137,14 +247,15 @@ dialog.chaj-dialog {
 .chaj-entry { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; padding: 7px 0; border-top: 1px solid var(--chaj-line); }
 .chaj-entry-heading { grid-column: 1 / -1; justify-content: flex-start; flex-wrap: wrap; font-size: 11px; color: var(--chaj-muted); }
 .chaj-entry-heading > span { overflow-wrap: anywhere; }
-.chaj-entry-heading .chaj-active { color: #000; font-weight: 700; }
+.chaj-entry-heading .chaj-active { color: var(--chaj-lit); font-weight: 700; }
+#chaj-panel[data-show-groups="false"] .chaj-entry-group { display: none; }
 .chaj-dialog .chaj-entry-text { text-align: left; padding: 0 1px; border: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border-radius: 4px; }
 .chaj-entry-actions { align-items: flex-start; gap: 4px; }
 .chaj-dialog .chaj-entry-actions :is(button, summary) { min-width: 40px; min-height: 40px; padding: 7px; font-size: 12px; border-radius: 999px; }
 .chaj-more summary { display: grid; place-items: center; list-style: none; font-weight: 800; }
 .chaj-more summary::-webkit-details-marker { display: none; }
 .chaj-more-menu { display: grid; justify-items: stretch; gap: 3px; margin-top: 3px; }
-.chaj-dialog :is([data-add="1"], [type="submit"], .chaj-update-now) { background: #000; color: #fff; border-color: #000; font-weight: 660; }
+.chaj-dialog :is([data-add="1"], [type="submit"], .chaj-update-now) { background: var(--chaj-active); color: var(--chaj-on-active); border-color: var(--chaj-active); font-weight: 660; }
 .chaj-editor { display: grid; gap: 9px; margin-top: 8px; }
 .chaj-editor label { display: grid; gap: 4px; }
 .chaj-editor label > span { font-size: 12px; color: var(--chaj-muted); }
@@ -154,7 +265,153 @@ dialog.chaj-dialog {
 #chaj-update .chaj-actions { margin-top: 12px; }
 #chat > .mes.chaj-highlight { outline: 2px solid currentColor; outline-offset: -2px; }
 
-@media (max-width: 360px) {
-    .chaj-brand-icon { display: none; }
+.chaj-mono { font: 11px/1.45 var(--chaj-mono); letter-spacing: .12em; }
+.chaj-sr { position: absolute; width: 1px; height: 1px; clip-path: inset(50%); overflow: hidden; }
+
+.chaj-composition {
+    position: relative;
+    display: grid;
+    grid-template-columns: .78fr 1.22fr;
+    align-items: center;
+    min-height: 410px;
+    padding: 17px 27px;
+    overflow: hidden;
+    background: var(--chaj-stage);
+}
+
+.chaj-composition::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: .11;
+    background: repeating-linear-gradient(0deg, transparent 0 3px, var(--chaj-etch) 3px 4px);
+    mask-image: linear-gradient(105deg, transparent, black);
+}
+
+[data-palette="mono"] .chaj-composition::before { opacity: .035; }
+.chaj-editorial { position: relative; z-index: 2; display: grid; justify-items: start; min-width: 0; padding-left: 19px; }
+.chaj-edition { display: flex; align-items: center; gap: 8px; padding-bottom: 14px; color: var(--chaj-muted); }
+.chaj-edition::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--chaj-lit); box-shadow: 0 0 13px var(--chaj-beam); }
+.chaj-edition b { padding-left: 8px; border-left: 1px solid var(--chaj-line); font-weight: 400; }
+#chaj-home .chaj-editorial h2 { font: 600 clamp(40px, 8.1cqw, 86px)/1.1 var(--chaj-serif); letter-spacing: -.075em; white-space: nowrap; }
+#chaj-panel:lang(en) .chaj-editorial h2 { font-size: clamp(34px, 6.5cqw, 70px); }
+.chaj-wordmark { margin: 6px 0 30px; font: clamp(20px, 3.2cqw, 36px)/1.25 Georgia, serif; letter-spacing: .115em; color: var(--chaj-muted); }
+.chaj-wordmark em { letter-spacing: .02em; }
+.chaj-selected { display: grid; gap: 1px; width: min(220px, 100%); padding-top: 11px; border-top: 1px solid var(--chaj-line); }
+.chaj-channel-number { color: var(--chaj-lit); }
+.chaj-dialog .chaj-enter { display: flex; align-items: center; justify-content: space-between; gap: 7px; padding: 0; border: 0; background: transparent; text-align: left; font-size: 16px; }
+.chaj-dialog .chaj-enter:hover { color: var(--chaj-lit); }
+
+.chaj-optics {
+    position: relative;
+    display: grid;
+    place-items: center;
+    min-width: 0;
+    height: clamp(250px, 42cqw, 378px);
+    background:
+        linear-gradient(var(--chaj-line), var(--chaj-line)) left top / 12px 1px,
+        linear-gradient(var(--chaj-line), var(--chaj-line)) left top / 1px 12px,
+        linear-gradient(var(--chaj-line), var(--chaj-line)) right top / 12px 1px,
+        linear-gradient(var(--chaj-line), var(--chaj-line)) right top / 1px 12px,
+        linear-gradient(var(--chaj-line), var(--chaj-line)) left bottom / 12px 1px,
+        linear-gradient(var(--chaj-line), var(--chaj-line)) left bottom / 1px 12px,
+        linear-gradient(var(--chaj-line), var(--chaj-line)) right bottom / 12px 1px,
+        linear-gradient(var(--chaj-line), var(--chaj-line)) right bottom / 1px 12px;
+    background-repeat: no-repeat;
+}
+.chaj-optics > :not(button) { pointer-events: none; }
+.chaj-axis { position: absolute; inset: 0; background: linear-gradient(var(--chaj-line), var(--chaj-line)) center / 100% 1px no-repeat, linear-gradient(var(--chaj-line), var(--chaj-line)) center / 1px 100% no-repeat; opacity: .38; }
+.chaj-orbit { position: absolute; width: 95%; height: 61%; border: 1px solid var(--chaj-beam); border-radius: 50%; transform: rotate(-25deg); opacity: .58; }
+.chaj-orbit-offset { width: 98%; height: 74%; border-style: dashed; transform: rotate(17deg); opacity: .37; }
+.chaj-dial-stamp { position: absolute; right: 12px; bottom: 9px; color: var(--chaj-muted); text-align: right; }
+
+#chaj-panel .chaj-dial {
+    position: relative;
+    display: block;
+    width: min(77%, 326px);
+    aspect-ratio: 1;
+    min-height: 0;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--chaj-metal-dark);
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+    box-shadow: 5px 9px 0 -1px var(--chaj-metal-back), 10px 16px 25px var(--chaj-shadow);
+}
+.chaj-dial-body { position: absolute; inset: 0; border-radius: 50%; transform: rotate(var(--chaj-angle, -17deg)); transition: transform 420ms cubic-bezier(.18, .7, .25, 1); }
+.chaj-dial[data-dragging] .chaj-dial-body { transition: none; }
+.chaj-rim {
+    position: absolute;
+    inset: 0;
+    border: 1px solid var(--chaj-metal);
+    border-radius: 50%;
+    background: conic-gradient(from 18deg, var(--chaj-metal-dark), var(--chaj-metal-light) 13%, var(--chaj-metal) 24%, var(--chaj-metal-back) 36%, var(--chaj-metal-dark) 43%, var(--chaj-metal-light) 59%, var(--chaj-metal) 69%, var(--chaj-metal-back) 83%, var(--chaj-metal-dark));
+    box-shadow: inset 0 0 0 3px var(--chaj-metal-dark), inset 0 0 0 4px var(--chaj-metal-light);
+}
+.chaj-scale { position: absolute; inset: 5%; border-radius: 50%; background: repeating-conic-gradient(var(--chaj-etch) 0 .9deg, transparent .9deg 15deg); mask-image: radial-gradient(circle, transparent 0 61%, black 61.5% 67%, transparent 67.5%); }
+.chaj-aperture { position: absolute; inset: 12%; display: block; overflow: hidden; border: 1px solid var(--chaj-metal-light); border-radius: 50%; background: var(--chaj-metal); box-shadow: 0 0 0 3px var(--chaj-metal-back), 0 0 0 4px var(--chaj-metal); }
+.chaj-aperture canvas { display: block; width: 100%; height: 100%; }
+.chaj-aperture::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: linear-gradient(148deg, #fff8, #fff0 31%, #fff0 52%, #fff4 53%, #fff0 57%); box-shadow: inset 1px 2px 5px #fff8, inset -4px -8px 15px #0006; }
+.chaj-marker { position: absolute; top: 5.4%; left: calc(50% - 4px); width: 8px; height: 12px; clip-path: polygon(0 0, 100% 0, 50% 100%); background: var(--chaj-metal-light); }
+
+.chaj-tuner { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--chaj-line); }
+.chaj-dialog .chaj-tuner button { display: flex; align-items: center; gap: 10px; min-height: 59px; padding: 6px 18px; border: 0; border-right: 1px solid var(--chaj-line); border-top: 3px solid transparent; border-radius: 0; text-align: left; font-weight: 650; }
+.chaj-dialog .chaj-tuner button:last-child { border-right: 0; }
+.chaj-dialog .chaj-tuner button[aria-pressed="true"] { border-top-color: var(--chaj-lit); background: var(--chaj-base); }
+.chaj-tuner button .chaj-mono { color: var(--chaj-lit); }
+
+.chaj-view-heading { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 17px clamp(12px, 4cqw, 36px); border-bottom: 1px solid var(--chaj-line); background: var(--chaj-stage); }
+.chaj-view-stamp { color: var(--chaj-lit); }
+.chaj-dialog .chaj-view-heading h2 { margin-top: 4px; font: 600 clamp(21px, 4.5cqw, 40px)/1.2 var(--chaj-serif); }
+.chaj-view-heading button { flex: none; }
+#chaj-panel .chaj-section { padding: 15px clamp(12px, 4cqw, 36px) 20px; }
+.chaj-directory { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; }
+.chaj-dialog .chaj-directory > * { display: grid; align-content: start; gap: 4px; min-width: 0; min-height: 57px; padding: 5px 6px; border: 0; border-top: 1px solid var(--chaj-line); border-radius: 0; text-align: left; font-size: 12px; }
+.chaj-directory > div { color: var(--chaj-muted); }
+.chaj-dialog .chaj-directory button { color: var(--chaj-lit); }
+.chaj-dialog .chaj-directory button:hover { background: var(--chaj-base); }
+
+.chaj-settings-tabs { display: flex; flex-wrap: wrap; gap: 3px; border-bottom: 1px solid var(--chaj-line); }
+.chaj-dialog .chaj-settings-tabs button { padding-inline: 9px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; font-size: 13px; }
+.chaj-dialog .chaj-settings-tabs button[aria-pressed="true"] { border-bottom-color: var(--chaj-lit); color: var(--chaj-lit); font-weight: 650; }
+.chaj-setting { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 15px; min-height: 64px; padding: 10px 3px; border-bottom: 1px solid var(--chaj-line); }
+.chaj-setting:last-child { border: 0; }
+.chaj-setting small { display: block; color: var(--chaj-muted); font-size: 12px; }
+.chaj-dialog .chaj-setting select { width: auto; max-width: 100%; }
+.chaj-dialog .chaj-setting input[type="checkbox"] { appearance: auto; width: 20px; min-height: 20px; height: 20px; flex: none; accent-color: var(--chaj-lit); }
+#chaj-extension-settings { width: max-content; max-width: 100%; }
+
+@container (max-width: 650px) {
+    .chaj-composition { min-height: 320px; padding: 13px; }
+    .chaj-editorial { padding-left: 8px; }
+    .chaj-dialog .chaj-tuner button { padding-inline: 8px; }
+    .chaj-directory { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+
+@container (max-width: 465px) {
+    #chaj-title, .chaj-theme button > span { display: none; }
+    .chaj-composition { display: flex; flex-direction: column; align-items: stretch; min-height: 0; padding: 13px 11px 9px; }
+    .chaj-editorial { grid-template-columns: minmax(0, 1.15fr) minmax(0, .85fr); align-items: end; gap: 3px 7px; }
+    .chaj-edition { grid-column: 1 / -1; padding-bottom: 2px; }
+    #chaj-home .chaj-editorial h2 { font-size: clamp(34px, 13cqw, 46px); grid-column: 1; }
+    #chaj-panel:lang(en) .chaj-editorial h2 { font-size: clamp(28px, 10cqw, 40px); }
+    .chaj-wordmark { grid-column: 1; margin: 0 0 5px; font-size: 16px; }
+    .chaj-selected { grid-row: 2 / 4; grid-column: 2; margin-bottom: 4px; }
+    .chaj-dialog .chaj-enter { font-size: 13px; }
+    .chaj-optics { height: clamp(216px, 73cqw, 270px); }
+    #chaj-panel .chaj-dial { width: min(68%, 212px); }
+    .chaj-dialog .chaj-tuner button { display: grid; align-content: center; gap: 0; min-height: 55px; font-size: 12px; }
+    .chaj-directory { grid-template-columns: repeat(3, minmax(0, 1fr)); }
     .chaj-ledger { gap: 6px; }
+}
+
+@media (pointer: coarse) {
+    .chaj-dialog :is(.chaj-close, .chaj-settings-button, .chaj-theme button, .chaj-language button) { min-width: 44px; min-height: 44px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .chaj-dial-body { transition: none; }
 }

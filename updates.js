@@ -14,7 +14,7 @@ async function request(getContext, path) {
     return response.json();
 }
 
-export function watchUpdates(dialog, getContext, getCopy) {
+export function watchUpdates(dialog, getContext, getCopy, isEnabled) {
     const button = dialog.querySelector('.chaj-update-now');
     const later = dialog.querySelector('.chaj-later');
     const status = dialog.querySelector('.chaj-update-status');
@@ -37,17 +37,31 @@ export function watchUpdates(dialog, getContext, getCopy) {
             button.disabled = later.disabled = false;
         }
     });
-    setTimeout(async () => {
+    let checking = false;
+    let available = false;
+    function showReminder() {
+        if (!isEnabled() || dialog.open) return;
+        render();
+        dialog.showModal();
+    }
+    async function check() {
+        if (!isEnabled() || checking) return;
+        if (available) return showReminder();
         try {
             if (Date.now() - Number(localStorage.getItem(checkKey)) < 6 * 60 * 60 * 1000) return;
             localStorage.setItem(checkKey, String(Date.now()));
         } catch { /* Check once this page load if storage is unavailable. */ }
+        checking = true;
         try {
             const result = await request(getContext, 'version');
-            if (result?.isUpToDate === false) {
-                render();
-                dialog.showModal();
-            }
+            available = result?.isUpToDate === false;
+            if (available) showReminder();
         } catch { /* Keep the extension usable when the repository is unreachable. */ }
-    }, 1500);
+        finally { checking = false; }
+    }
+    setTimeout(check, 1500);
+    return () => {
+        if (isEnabled()) void check();
+        else if (dialog.open && !button.disabled) dialog.close();
+    };
 }

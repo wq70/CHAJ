@@ -2,13 +2,17 @@ import { syncOpening } from './greetings.js';
 import { copy } from './locale.js';
 import { createStudio } from './studio.js';
 import { watchUpdates } from './updates.js';
+import { loadPreferences, savePreferences, settingsMarkup } from './preferences.js';
+import { createFloatingOrb, createTideDial, dialMarkup, directoryMarkup } from './tide.js';
 
 const PAGE_SIZE = 24;
 const getContext = () => SillyTavern.getContext();
-const cloudIcon = `<svg viewBox="0 0 66 52" width="66" height="52" aria-hidden="true">
-    <path d="M17 43a13 13 0 0 1-1-26 17 17 0 0 1 32-1 13.5 13.5 0 0 1 1 27H17Z" fill="#fff" stroke="#111" stroke-width="1.5" />
-    <path d="M27 28h.1m12 0h.1M31 32q2 2 4 0" fill="none" stroke="#111" stroke-width="2.2" stroke-linecap="round" />
-</svg>`;
+const icons = {
+    day: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4 1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>',
+    night: '<path d="M20.9 13.3a9 9 0 0 1-10.2-10.2 9 9 0 1 0 10.2 10.2Z"/>',
+    settings: '<path d="M4 6h5m4 0h7M4 12h10m4 0h2M4 18h3m4 0h9"/><circle cx="11" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="9" cy="18" r="2"/>',
+};
+const icon = name => `<svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">${icons[name]}</svg>`;
 
 function messageElement(id) {
     return document.querySelector(`#chat > .mes[mesid="${id}"]`);
@@ -21,28 +25,40 @@ function init() {
     cloud.id = 'chaj-cloud';
     cloud.type = 'button';
     cloud.setAttribute('aria-haspopup', 'dialog');
-    cloud.innerHTML = cloudIcon;
+    cloud.className = 'chaj-colors';
+    const wakeEdge = document.createElement('div');
+    wakeEdge.id = 'chaj-wake-edge';
+    wakeEdge.hidden = true;
+    wakeEdge.setAttribute('aria-hidden', 'true');
 
     const dialog = document.createElement('dialog');
     dialog.id = 'chaj-panel';
-    dialog.className = 'chaj-dialog';
+    dialog.className = 'chaj-dialog chaj-colors';
     dialog.setAttribute('aria-labelledby', 'chaj-title');
     dialog.innerHTML = `
         <header class="chaj-masthead">
-            <div class="chaj-brand"><span class="chaj-brand-icon">${cloudIcon}</span><h2 id="chaj-title" data-copy="title"></h2></div>
+            <div class="chaj-brand"><span class="chaj-brand-mark" aria-hidden="true"></span><strong>CHAJ</strong><span id="chaj-title" data-copy="title"></span></div>
             <div class="chaj-top-actions">
+                <div class="chaj-theme" role="group" data-aria="theme">
+                    <button type="button" data-theme-choice="day" data-aria="day">${icon('day')}<span data-copy="day"></span></button>
+                    <button type="button" data-theme-choice="night" data-aria="night">${icon('night')}<span data-copy="night"></span></button>
+                </div>
                 <div class="chaj-language" role="group" data-aria="language">
                     <button type="button" lang="zh-CN" data-language="zh">中</button>
                     <button type="button" lang="en" data-language="en">EN</button>
                 </div>
+                <button type="button" class="chaj-settings-button" data-view="settings" data-aria="settings">${icon('settings')}</button>
                 <button type="button" class="chaj-close" data-aria="close" autofocus>×</button>
             </div>
         </header>
-        <nav class="chaj-tabs" data-aria="functions">
-            <button type="button" data-tab="history" aria-controls="chaj-history" aria-pressed="true" data-copy="history"></button>
-            <button type="button" data-tab="greetings" aria-controls="chaj-greetings" aria-pressed="false" data-copy="greetings"></button>
-        </nav>
-        <section id="chaj-history" class="chaj-section">
+        <section id="chaj-home" data-content="home">${dialMarkup}</section>
+        <div class="chaj-view-heading" hidden>
+            <div><span class="chaj-mono chaj-view-stamp" aria-hidden="true"></span><h2 tabindex="-1"></h2></div>
+            <button type="button" data-view="home"><span aria-hidden="true">‹</span> <span data-copy="backToDial"></span></button>
+        </div>
+        <section data-content="directory" class="chaj-section" hidden>${directoryMarkup}</section>
+        <section data-content="settings" class="chaj-section" hidden>${settingsMarkup}</section>
+        <section id="chaj-history" data-content="history" class="chaj-section" hidden>
             <div class="chaj-results">
                 <div class="chaj-search"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="10.5" cy="10.5" r="5.5"/><path d="m15 15 4 4"/></svg><input type="search" data-aria="search" autocomplete="off"></div>
                 <p class="chaj-summary" aria-live="polite"></p>
@@ -67,7 +83,7 @@ function init() {
                 </div>
             </div>
         </section>
-        <section id="chaj-greetings" class="chaj-section chaj-greetings" hidden>
+        <section id="chaj-greetings" data-content="greetings" class="chaj-section chaj-greetings" hidden>
             <div class="chaj-studio-heading">
                 <h3 class="chaj-character"></h3>
                 <div class="chaj-ledger">
@@ -101,13 +117,18 @@ function init() {
         </section>`;
     const update = document.createElement('dialog');
     update.id = 'chaj-update';
-    update.className = 'chaj-dialog';
+    update.className = 'chaj-dialog chaj-colors';
     update.setAttribute('aria-labelledby', 'chaj-update-title');
     update.innerHTML = `<h2 id="chaj-update-title" data-copy="updateTitle"></h2><p data-copy="updateBody"></p>
         <div class="chaj-actions"><button type="button" class="chaj-later" data-copy="later"></button>
         <button type="button" class="chaj-update-now" data-copy="updateNow"></button></div>
         <p class="chaj-update-status" role="status"></p>`;
-    document.body.append(cloud, dialog, update);
+    document.body.append(cloud, wakeEdge, dialog, update);
+    const recovery = document.createElement('button');
+    recovery.type = 'button';
+    recovery.id = 'chaj-extension-settings';
+    recovery.className = 'menu_button';
+    document.getElementById('extensions_settings2')?.append(recovery);
 
     const find = selector => dialog.querySelector(selector);
     const search = find('input[type="search"]');
@@ -115,7 +136,8 @@ function init() {
     const results = find('.chaj-results');
     const preview = find('.chaj-preview');
     const jump = find('.chaj-jump');
-    let tab = 'history';
+    const preferences = loadPreferences();
+    let view = 'home';
     let page = 0;
     let focusedId = null;
     let focusedMessage = null;
@@ -124,16 +146,46 @@ function init() {
     try { if (localStorage.getItem('chaj.language') === 'en') language = 'en'; } catch { /* Use the default language. */ }
     const getCopy = () => copy[language];
     const studio = createStudio(find('#chaj-greetings'), getContext, getCopy, () => dialog.close());
+    const dial = createTideDial(find('#chaj-home'), getCopy, navigate);
+    const orb = createFloatingOrb(cloud, wakeEdge, preferences, persistPreferences, () => open(), () => !dialog.open && !update.open);
+    const syncUpdates = watchUpdates(update, getContext, getCopy, () => preferences.update);
+    const settingFields = [...dialog.querySelectorAll('[data-preference]')];
+    const headings = { directory: 'SPECTRUM INDEX', history: '01 / HISTORY', greetings: '02 / DRAFTS', settings: 'PREFERENCES' };
+
+    function persistPreferences() {
+        savePreferences(preferences);
+        find('[data-preference="hidden"]').checked = preferences.hidden;
+    }
+
+    function renderPreferences() {
+        for (const element of [cloud, dialog, update]) {
+            element.dataset.theme = preferences.theme;
+            element.dataset.palette = preferences.palette;
+        }
+        dialog.dataset.showGroups = String(preferences.showGroups);
+        for (const button of dialog.querySelectorAll('[data-theme-choice]')) {
+            button.setAttribute('aria-pressed', String(button.dataset.themeChoice === preferences.theme));
+        }
+        for (const field of settingFields) {
+            const value = preferences[field.dataset.preference];
+            if (field.type === 'checkbox') field.checked = value;
+            else field.value = value;
+        }
+        if (dialog.open && view === 'home') dial.paint(preferences);
+    }
 
     function renderLanguage() {
         const c = getCopy();
         dialog.lang = language === 'zh' ? 'zh-CN' : 'en';
         cloud.setAttribute('aria-label', c.open);
+        recovery.textContent = c.extensionSettings;
         for (const element of dialog.querySelectorAll('[data-copy]')) element.textContent = c[element.dataset.copy];
         for (const element of dialog.querySelectorAll('[data-aria]')) element.setAttribute('aria-label', c[element.dataset.aria]);
         for (const button of dialog.querySelectorAll('[data-language]')) button.setAttribute('aria-pressed', String(button.dataset.language === language));
         search.placeholder = c.placeholder;
         find('.chaj-editor input').placeholder = c.groupHint;
+        find('.chaj-view-heading h2').textContent = c[view] ?? '';
+        dial.render();
     }
 
     function refreshResults() {
@@ -150,6 +202,7 @@ function init() {
                 matches.push(id);
             }
         }
+        if (preferences.order === 'old') matches.reverse();
         const totalPages = Math.max(1, Math.ceil(matches.length / PAGE_SIZE));
         page = Math.min(page, totalPages - 1);
         const total = chat.length ? c.range(chat.length) : c.noChat;
@@ -221,39 +274,76 @@ function init() {
         try { syncOpening(getContext()); } catch (error) { console.error('[CHAJ] Opening sync failed', error); }
     }
 
-    function selectTab(next) {
-        tab = next;
-        for (const button of dialog.querySelectorAll('[data-tab]')) {
-            const active = button.dataset.tab === tab;
-            button.setAttribute('aria-pressed', String(active));
-            document.getElementById(button.getAttribute('aria-controls')).hidden = !active;
-        }
-        if (tab === 'history') showList();
-        else studio.render();
+    function renderView() {
+        for (const section of dialog.querySelectorAll('[data-content]')) section.hidden = section.dataset.content !== view;
+        find('.chaj-view-heading').hidden = view === 'home';
+        find('.chaj-view-heading h2').textContent = getCopy()[view] ?? '';
+        find('.chaj-view-stamp').textContent = headings[view] ?? '';
+        if (view === 'home') dial.paint(preferences);
+        if (view === 'history') showList();
+        if (view === 'greetings') studio.render();
     }
 
-    cloud.addEventListener('click', () => {
+    function navigate(next) {
+        view = next;
+        renderView();
+        dialog.scrollTop = 0;
+        (view === 'home' ? find('.chaj-enter') : find('.chaj-view-heading h2')).focus({ preventScroll: true });
+    }
+
+    function open(next = 'home') {
         repairOpening();
-        selectTab(tab);
-        dialog.showModal();
-    });
+        if (!dialog.open) dialog.showModal();
+        navigate(next);
+    }
+    recovery.addEventListener('click', () => open('settings'));
     find('.chaj-close').addEventListener('click', () => dialog.close());
     dialog.addEventListener('click', event => {
         if (event.target !== dialog) return;
         const box = dialog.getBoundingClientRect();
         if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) dialog.close();
     });
-    for (const button of dialog.querySelectorAll('[data-tab]')) {
-        button.addEventListener('click', () => selectTab(button.dataset.tab));
+    for (const button of dialog.querySelectorAll('[data-view]')) {
+        button.addEventListener('click', () => navigate(button.dataset.view));
+    }
+    const settingsTabs = dialog.querySelectorAll('[data-settings-tab]');
+    for (const button of settingsTabs) {
+        button.addEventListener('click', () => {
+            for (const tab of settingsTabs) {
+                const active = button === tab;
+                tab.setAttribute('aria-pressed', String(active));
+                find('#' + tab.getAttribute('aria-controls')).hidden = !active;
+            }
+        });
+    }
+    for (const button of dialog.querySelectorAll('[data-theme-choice]')) {
+        button.addEventListener('click', () => {
+            preferences.theme = button.dataset.themeChoice;
+            persistPreferences();
+            renderPreferences();
+        });
+    }
+    for (const field of settingFields) {
+        field.addEventListener('change', () => {
+            const key = field.dataset.preference;
+            preferences[key] = field.type === 'checkbox' ? field.checked : field.value;
+            persistPreferences();
+            renderPreferences();
+            if (key === 'wake' || key === 'hidden') orb.render();
+            if (key === 'order') page = 0;
+            if (key === 'update') syncUpdates();
+        });
     }
     for (const button of dialog.querySelectorAll('[data-language]')) {
         button.addEventListener('click', () => {
             language = button.dataset.language;
             try { localStorage.setItem('chaj.language', language); } catch { /* Keep the language for this page. */ }
             renderLanguage();
-            if (tab === 'greetings') studio.render();
-            else if (focusedId !== null) showMessage(focusedId);
-            else refreshResults();
+            if (view === 'greetings') studio.render();
+            if (view === 'history') {
+                if (focusedId !== null) showMessage(focusedId);
+                else refreshResults();
+            }
         });
     }
     search.addEventListener('input', () => {
@@ -297,23 +387,25 @@ function init() {
         repairOpening();
         search.value = '';
         page = 0;
-        if (dialog.open) selectTab(tab);
+        if (dialog.open && view === 'history') showList();
+        if (dialog.open && view === 'greetings') studio.render();
     });
     for (const event of ['MESSAGE_SENT', 'MESSAGE_RECEIVED', 'MESSAGE_EDITED', 'MESSAGE_DELETED', 'MESSAGE_UPDATED', 'MESSAGE_SWIPED', 'MORE_MESSAGES_LOADED']) {
         eventSource.on(eventTypes[event], () => {
             if (event === 'MESSAGE_DELETED') repairOpening();
             if (!dialog.open) return;
-            if (tab === 'greetings') return studio.render();
+            if (view === 'greetings') return studio.render();
+            if (view !== 'history') return;
             if (focusedId !== null && getContext().chat[focusedId] === focusedMessage) showMessage(focusedId);
             else showList();
         });
     }
     eventSource.on(eventTypes.CHARACTER_EDITED, () => {
-        if (dialog.open && tab === 'greetings') studio.render();
+        if (dialog.open && view === 'greetings') studio.render();
     });
     renderLanguage();
+    renderPreferences();
     repairOpening();
-    watchUpdates(update, getContext, getCopy);
 }
 
 const { eventSource, eventTypes } = getContext();
