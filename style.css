@@ -27,12 +27,13 @@
     --chaj-line: #dfddee;
     --chaj-accent: #5547a1;
     position: fixed;
-    inset: auto calc(12px + env(safe-area-inset-right, 0px)) calc(18px + env(safe-area-inset-bottom, 0px)) auto;
+    inset: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
     box-sizing: border-box;
     width: min(420px, calc(100vw - 24px - env(safe-area-inset-right, 0px) - env(safe-area-inset-left, 0px)));
     max-width: none;
+    height: fit-content;
     max-height: min(670px, calc(100dvh - 38px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px)));
-    margin: 0;
+    margin: auto;
     padding: 16px;
     overflow: auto;
     overscroll-behavior: contain;
